@@ -2,18 +2,31 @@ package ua.kiev.prog.case2;
 
 import ua.kiev.prog.shared.Client;
 import ua.kiev.prog.shared.ConnectionFactory;
+import ua.kiev.prog.shared.Orders;
+import ua.kiev.prog.shared.Product;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) throws SQLException {
-        try (Connection conn = ConnectionFactory.getConnection()) {
+
+
+        List<Integer> idClients = new ArrayList<>();
+        List<Integer> idProducts = new ArrayList<>();
+
+        try (Connection connOne = ConnectionFactory.getConnection()) {
             // remove this
+
+            //тестовый клиент
+            Client test = new Client("Sveta", "11111111111", "111@222");
+            //таблица клиентов
             try {
-                try (Statement st = conn.createStatement()) {
+                try (Statement st = connOne.createStatement()) {
                     st.execute("DROP TABLE IF EXISTS Clients");
                     //st.execute("CREATE TABLE Clients (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20) NOT NULL, age INT)");
                 }
@@ -21,50 +34,74 @@ public class Main {
                 throw new RuntimeException(ex);
             }
 
-            ClientDAOImpl2 dao = new ClientDAOImpl2(conn, "Clients");
-            dao.createTable(Client.class);
-
-            Client c = new Client("test", 1);
-            dao.add(c);
-
-            //получение ID клиента в БД
-            int id = dao.getID(c.getName());
-            System.out.println(id);
+            ClientDAOImpl2 daoCl = new ClientDAOImpl2(connOne, "Clients");
+            daoCl.createTable(Client.class);
 
             //метод рандомного создания списка для тестирования ДЗ
-            List<Client> testList = Client.randomBDClients();
-            for (Client cl : testList) {
-                dao.add(cl);
+            List<Client> testListCl = Client.randomBDClients();
+            for (Client cl : testListCl) {
+                daoCl.add(cl);
+            }
+            daoCl.add(test);
+
+            List<Client> resultCl = daoCl.getAll(Client.class);
+            for (Client c : resultCl) {
+                System.out.println(c);
+                int n = daoCl.getID(c.getName());
+                idClients.add(n);
             }
 
-            //List<Client> list = dao.getAll(Client.class, "name");
-            List<Client> listOne = dao.getAll(Client.class, "name");
-            for (Client cli : listOne) {
-                System.out.println(cli);
+            //таблица товаров
+            try {
+                try (Statement st = connOne.createStatement()) {
+                    st.execute("DROP TABLE IF EXISTS Products");
+                    //st.execute("CREATE TABLE Clients (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20) NOT NULL, age INT)");
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
 
-            System.out.println();
-            System.out.println();
-            System.out.println();
+            ProductDAOImpl2 daoPr = new ProductDAOImpl2(connOne, "Products");
+            daoPr.createTable(Product.class);
 
-            //List<Client> list = dao.getAll(Client.class, "name", "age");
-            List<Client> listTwo = dao.getAll(Client.class, "name", "age");
-            for (Client cli : listTwo) {
-                System.out.println(dao.getID(cli.getName()));
-                System.out.println(cli);
+            //метод рандомного создания списка для тестирования ДЗ
+            List<Product> testListPr = Product.randomBDProducts();
+            for (Product pr : testListPr) {
+                daoPr.add(pr);
+            }
+            List<Product> resultPr = daoPr.getAll(Product.class);
+            for (Product p : resultPr) {
+                System.out.println(p);
+                int n = daoPr.getID(p.getName());
+                idProducts.add(n);
+            }
+            //таблицо заказов
+            try {
+                try (Statement st = connOne.createStatement()) {
+                    st.execute("DROP TABLE IF EXISTS Orders");
+                    //st.execute("CREATE TABLE Clients (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20) NOT NULL, age INT)");
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
 
-            System.out.println();
-            System.out.println();
-            System.out.println();
-
-            List<Client> list = dao.getAll(Client.class);
-            for (Client cli : list) {
-                System.out.println(cli);
+            OrdersDAOImpl2 daoOr = new OrdersDAOImpl2(connOne, "Orders");
+            daoOr.createTable(Orders.class);
+            int mark = 0;
+            List<Integer> listTest = new ArrayList<>();
+            for (Product p : resultPr) {
+                mark += 1;
+                listTest.add(daoPr.getID(p.getName()));
+                if (mark == 5) {
+                    break;
+                }
             }
-            list.get(0).setAge(55);
-            dao.update(list.get(0));
-            dao.delete(list.get(0));
+            daoOr.add(new Orders(daoCl.getID(test.getName()), listTest));
+            List<Orders> res = daoOr.getAll(Orders.class);
+            for (Orders o : res) {
+                System.out.println(o);
+            }
         }
+
     }
 }

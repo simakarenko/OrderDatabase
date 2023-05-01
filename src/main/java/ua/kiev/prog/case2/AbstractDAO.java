@@ -36,10 +36,12 @@ public abstract class AbstractDAO<T> {
 
                 sql.append(f.getName()).append(" ");
 
-                if (f.getType() == int.class) {
+                if (f.getType() == int.class || f.getType() == Integer.class) {
                     sql.append("INT,");
-                } else if (f.getType() == String.class) {
+                } else if (f.getType() == String.class || f.getType() == List.class) {
                     sql.append("VARCHAR(100),");
+                } else if (f.getType() == double.class) {
+                    sql.append("DOUBLE,");
                 } else
                     throw new RuntimeException("Wrong type");
             }

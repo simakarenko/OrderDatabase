@@ -51,7 +51,8 @@ public class ClientDAOImpl implements ClientDAO {
 
                         client.setId(rs.getInt(1));
                         client.setName(rs.getString(2));
-                        client.setAge(rs.getInt(3));
+                        client.setPhone(rs.getString(3));
+                        client.setEmail(rs.getString(4));
 
                         res.add(client);
                     }

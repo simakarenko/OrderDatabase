@@ -8,14 +8,16 @@ public class Client {
     private int id;
 
     private String name;
-    private int age;
+    private String phone;
+    private String email;
 
     public Client() {
     }
 
-    public Client(String name, int age) {
+    public Client(String name, String phone, String email) {
         this.name = name;
-        this.age = age;
+        this.phone = phone;
+        this.email = email;
     }
 
     public int getId() {
@@ -34,18 +36,26 @@ public class Client {
         this.name = name;
     }
 
-    public int getAge() {
-        return age;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public static List<Client> randomBDClients() {
         List<Client> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Client c = new Client("test" + i, 20 + i);
+        for (int i = 0; i < 5; i++) {
+            Client c = new Client("test" + i, "38092637274" + i, "aaaa@" + i);
             list.add(c);
         }
         return list;
@@ -56,7 +66,8 @@ public class Client {
         return "Client{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", age=" + age +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
                 '}';
     }
 }
